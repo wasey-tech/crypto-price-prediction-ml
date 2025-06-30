@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crypto Predictor</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <style>
+        body {
+            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+            color: white;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .crypto-card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        .crypto-chart {
+            height: 200px;
+            margin: 15px 0;
+        }
+        .prediction-badge {
+            font-size: 1.1rem;
+            padding: 5px 15px;
+            border-radius: 20px;
+        }
+        .badge-up {
+            background: rgba(0, 200, 83, 0.2);
+            color: #00c853;
+        }
+        .badge-down {
+            background: rgba(255, 23, 68, 0.2);
+            color: #ff1744;
+        }
+        .probability-bar {
+            height: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+        .probability-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #ffab00, #00c853);
+        }
+        footer {
+            opacity: 0.7;
+            margin-top: 30px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container py-4">
+        <header class="text-center mb-5">
+            <h1 class="mb-3"><i class="fas fa-chart-line me-2"></i>Crypto Predictor</h1>
+            <p class="text-muted">Simple and reliable cryptocurrency price predictions</p>
+        </header>
+
+        {% if crypto_info %}
+        <div class="row">
+            {% for crypto in crypto_info %}
+            <div class="col-md-6 mb-4">
+                <div class="crypto-card">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h3 class="h4 mb-0">{{ crypto.name }} ({{ crypto.symbol }})</h3>
+                        <span class="prediction-badge badge-{{ 'up' if crypto.prediction else 'down' }}">
+                            {{ 'UP' if crypto.prediction else 'DOWN' }}
+                        </span>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between mb-2">
+                        <div>Current Price:</div>
+                        <div class="fw-bold">
+                            ${{ "%.4f"|format(crypto.current_price) if 'DOGE' in crypto.symbol else "%.2f"|format(crypto.current_price) }}
+                        </div>
+                    </div>
+                    
+                    <div id="chart-{{ crypto.symbol }}" class="crypto-chart"></div>
+                    
+                    <div class="d-flex justify-content-between mb-1">
+                        <div>Prediction Confidence:</div>
+                        <div class="fw-bold">{{ "%.1f"|format(crypto.probability) }}%</div>
+                    </div>
+                    
+                    <div class="probability-bar">
+                        <div class="probability-fill" style="width: {{ crypto.probability }}%"></div>
+                    </div>
+                    
+                    <div class="text-end small text-muted">
+                        Model Accuracy: {{ "%.1f"|format(crypto.accuracy) }}%
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+        
+        <footer class="text-center text-muted">
+            <p class="mb-1">Last updated: {{ last_updated }}</p>
+            <p class="small">Data from Yahoo Finance & CoinGecko | Predictions may vary</p>
+        </footer>
+    </div>
+
+    <script>
+        // Render charts
+        document.addEventListener('DOMContentLoaded', function() {
+            {% for crypto in crypto_info %}
+            try {
+                var chartData = JSON.parse('{{ crypto.chart|safe }}');
+                Plotly.newPlot('chart-{{ crypto.symbol }}', chartData.data, chartData.layout);
+            } catch (e) {
+                console.error('Chart error:', e);
+                document.getElementById('chart-{{ crypto.symbol }}').innerHTML = 
+                    '<div class="text-center text-muted p-4">Chart unavailable</div>';
+            }
+            {% endfor %}
+        });
+    </script>
+</body>
+</html>
