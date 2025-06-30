@@ -65,19 +65,7 @@ Change prediction intervals
 Set fallback API behavior
 Tune ML or dashboard parameters
 
-📁 Project Structure:
-
-crypto-price-prediction-ml/
-├── app.py               # Flask app
-├── predictor.py         # ML logic and model loading
-├── data_processor.py    # Fetching and feature extraction
-├── config.py            # Runtime settings
-├── templates/           # HTML files
-├── static/              # CSS and JS assets
-├── data_cache/          # Local API data cache
-├── model_cache/         # Trained models
-└── requirements.txt     # Python dependencies
-🧯 Troubleshooting
+🧯 Troubleshooting:
 
 API Limit Error:
 Use CoinGecko fallback or create your own API key.
